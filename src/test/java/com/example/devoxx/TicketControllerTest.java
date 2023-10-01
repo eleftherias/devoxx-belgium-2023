@@ -2,6 +2,7 @@ package com.example.devoxx;
 
 import org.junit.jupiter.api.BeforeEach;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,5 +26,12 @@ class TicketControllerTest {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .build();
+    }
+
+    @Test
+    public void tourReturnsTourDetails() throws Exception {
+        this.mockMvc.perform(get("/tour"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("The Eras Tour, a journey through the musical eras of Taylor Swift's career (past & present!)"));
     }
 }
