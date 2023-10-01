@@ -15,4 +15,9 @@ public class TicketController {
     public String greeting(@AuthenticationPrincipal(expression = "username") String username) {
         return "Welcome, " + username + "!";
     }
+
+    @GetMapping("/nearest-venue")
+    public String nearestVenue(@AuthenticationPrincipal Fan fan) {
+        return fan.getNearestVenue();
+    }
 }

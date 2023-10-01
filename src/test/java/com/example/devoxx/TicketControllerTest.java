@@ -52,4 +52,20 @@ class TicketControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("**/login"));
     }
+
+    @Test
+    public void getNearestVenueReturnsFansNearestVenue() throws Exception {
+        Fan fan = new Fan();
+        fan.setNearestVenue("Amsterdam, Netherlands");
+        this.mockMvc.perform(get("/nearest-venue").with(user(new FanService.FanDetails(fan))))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Amsterdam, Netherlands"));
+    }
+
+    @Test
+    public void getNearestVenueWhenUnauthenticatedUserThenReturns401() throws Exception {
+        this.mockMvc.perform(get("/nearest-venue"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
 }
