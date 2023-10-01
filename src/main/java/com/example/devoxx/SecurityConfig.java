@@ -14,6 +14,7 @@ public class SecurityConfig {
                 .formLogin(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/tour").permitAll()
+                        .requestMatchers("/show").hasAuthority("SWIFTIE")
                         .anyRequest().authenticated()
                 );
         return http.build();

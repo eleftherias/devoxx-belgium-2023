@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -65,6 +66,38 @@ class TicketControllerTest {
     @Test
     public void getNearestVenueWhenUnauthenticatedUserThenReturns401() throws Exception {
         this.mockMvc.perform(get("/nearest-venue"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @Test
+    public void postShowWhenFanIsSwiftieThenBooksShow() throws Exception {
+        Fan swiftie = new Fan();
+        swiftie.setSwiftie(true);
+        this.mockMvc.perform(post("/show")
+                        .content("Amsterdam, Netherlands")
+                        .with(user(new FanService.FanDetails(swiftie)))
+                        .with(csrf())
+                )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void postShowWhenFanIsNotSwiftieThenReturns403() throws Exception {
+        Fan fan = new Fan();
+        this.mockMvc.perform(post("/show")
+                        .content("Amsterdam, Netherlands")
+                        .with(user(new FanService.FanDetails(fan)))
+                        .with(csrf())
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void postShowWhenUnauthenticatedThenReturns401() throws Exception {
+        this.mockMvc.perform(post("/show")
+                        .content("Amsterdam, Netherlands")
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("**/login"));
     }
