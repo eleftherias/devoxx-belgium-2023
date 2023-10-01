@@ -5,11 +5,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -100,5 +102,27 @@ class TicketControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @Test
+    public void supportWhenUserAuthorityIsSupportThenReturnsAdvice() throws Exception {
+        Jwt supportJwt = Jwt.withTokenValue("token")
+                .header("alg", "none")
+                .claim("sub", "customer-support")
+                .claim("scope", "support")
+                .build();
+        this.mockMvc.perform(get("/support/tickets").with(jwt().jwt(supportJwt)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Would've, could've, should've stayed in 1 tab"));
+    }
+
+    @Test
+    public void supportWhenUserAuthorityIsNotSupportThenReturns403() throws Exception {
+        Jwt noSupportJwt = Jwt.withTokenValue("token")
+                .header("alg", "none")
+                .claim("sub", "customer-support")
+                .build();
+        this.mockMvc.perform(get("/support/tickets").with(jwt().jwt(noSupportJwt)))
+                .andExpect(status().isForbidden());
     }
 }

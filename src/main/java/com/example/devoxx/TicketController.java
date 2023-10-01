@@ -28,4 +28,9 @@ public class TicketController {
         // To keep this talk focused, data operations are omitted
         System.out.println("They'll tell you now, you're the lucky one, " + fan.getUsername());
     }
+
+    @GetMapping("/support/tickets")
+    public String support() {
+        return "Would've, could've, should've stayed in 1 tab";
+    }
 }
